@@ -1,3 +1,5 @@
 export default defineBackground(() => {
-  console.log("Hello background!", { id: browser.runtime.id })
+  console.log("Portflow Extended background script loaded", {
+    id: browser.runtime.id,
+  })
 })

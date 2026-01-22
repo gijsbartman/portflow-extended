@@ -1,35 +1,48 @@
+import { CONFIG } from "../src/constants/config"
+import { DomService } from "../src/services/dom.service"
+import type { FeedbackCompleteEvent, GoalSummary } from "../src/types"
+import { logger } from "../src/utils/logger"
+
 export default defineContentScript({
-  matches: ["https://canvas.hu.nl/*"],
-  runAt: "document_end",
+  matches: ["*://portfolio.drieam.app/*"],
+  cssInjectionMode: "ui",
+  runAt: "document_start",
   allFrames: true,
-  main() {
-    console.log("🚀 Portflow Extended: Content script loaded!")
-    console.log("📍 Current URL:", window.location.href)
 
-    // Add a visible banner to confirm the script is running
-    const banner = document.createElement("div")
-    banner.textContent = "🚀 Portflow Extended is ACTIVE!"
-    banner.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px;
-      text-align: center;
-      font-weight: bold;
-      z-index: 10000;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      font-family: system-ui, -apple-system, sans-serif;
-    `
-    document.body.prepend(banner)
+  async main(ctx) {
+    logger.info("Content script loaded", { href: window.location.href })
 
-    // Remove banner after 3 seconds
-    setTimeout(() => {
-      banner.style.transition = "opacity 0.5s"
-      banner.style.opacity = "0"
-      setTimeout(() => banner.remove(), 500)
-    }, 3000)
+    // Monitor SPA navigations
+    ctx.addEventListener(window, "wxt:locationchange", ({ newUrl, oldUrl }) => {
+      logger.info("Navigation detected", { newUrl, oldUrl })
+    })
+
+    // Inject the fetch interceptor into the main world
+    await injectScript("/interceptor.js", {
+      keepInDom: true,
+    })
+    logger.success("Interceptor injected")
+
+    // Store latest summaries to re-inject on render
+    let currentSummaries: GoalSummary[] = []
+
+    // Listen for feedback data from interceptor
+    window.addEventListener(CONFIG.EVENTS.FEEDBACK_COMPLETE, (event: Event) => {
+      const customEvent = event as CustomEvent<FeedbackCompleteEvent>
+      const { summaries } = customEvent.detail
+
+      logger.success(`Received ${summaries.length} summaries in content script`)
+      currentSummaries = summaries
+
+      // Initial injection
+      DomService.injectAllStats(currentSummaries)
+    })
+
+    // Setup observer to handle dynamic page updates (filters/sorting)
+    const observer = DomService.initObserver(() => {
+      if (currentSummaries.length > 0) {
+        DomService.injectAllStats(currentSummaries)
+      }
+    })
   },
 })
