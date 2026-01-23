@@ -21,9 +21,7 @@ export const GoalsService = {
       return {
         goal,
         recentLevel: "-",
-        recentScore: null,
         highestLevel: "-",
-        highestScore: null,
         evalCounts: { valid: 0, invalid: 0, total: 0 },
         levelSet: levelSet || [],
       }
@@ -36,9 +34,7 @@ export const GoalsService = {
     return {
       goal,
       recentLevel,
-      recentScore: null,
       highestLevel,
-      highestScore: null,
       evalCounts,
       levelSet,
     }

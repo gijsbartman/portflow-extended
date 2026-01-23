@@ -29,9 +29,7 @@ export interface EvalCounts {
 export interface GoalSummary {
   goal: Goal
   recentLevel: string | null
-  recentScore: number | null
   highestLevel: string | null
-  highestScore: number | null
   evalCounts: EvalCounts
   levelSet: ApiLevel[]
 }

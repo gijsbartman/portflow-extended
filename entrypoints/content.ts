@@ -1,5 +1,6 @@
 import { CONFIG } from "../src/constants/config"
 import { DomService } from "../src/services/dom.service"
+import { StateService } from "../src/services/state.service"
 import type { FeedbackCompleteEvent, GoalSummary } from "../src/types"
 import { logger } from "../src/utils/logger"
 
@@ -27,22 +28,35 @@ export default defineContentScript({
     let currentSummaries: GoalSummary[] = []
 
     // Listen for feedback data from interceptor
-    window.addEventListener(CONFIG.EVENTS.FEEDBACK_COMPLETE, (event: Event) => {
+    const feedbackHandler = async (event: Event) => {
       const customEvent = event as CustomEvent<FeedbackCompleteEvent>
-      const { summaries } = customEvent.detail
+      const { summaries, portfolioId } = customEvent.detail
 
       logger.success(`Received ${summaries.length} summaries in content script`)
       currentSummaries = summaries
 
+      // Update state with success
+      await StateService.setSuccess(portfolioId, summaries)
+
       // Initial injection
       DomService.injectAllStats(currentSummaries)
-    })
+    }
+
+    window.addEventListener(CONFIG.EVENTS.FEEDBACK_COMPLETE, feedbackHandler)
 
     // Setup observer to handle dynamic page updates (filters/sorting)
     const observer = DomService.initObserver(() => {
       if (currentSummaries.length > 0) {
         DomService.injectAllStats(currentSummaries)
       }
+    })
+
+    // Cleanup on context invalidation (prevents memory leaks)
+    ctx.onInvalidated(() => {
+      logger.info("Content script invalidated, cleaning up...")
+      observer.disconnect()
+      window.removeEventListener(CONFIG.EVENTS.FEEDBACK_COMPLETE, feedbackHandler)
+      currentSummaries = []
     })
   },
 })

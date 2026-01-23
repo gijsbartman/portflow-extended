@@ -1,3 +1,4 @@
+import { getLevelStyle } from "../constants/theme"
 import type { GoalSummary } from "../types"
 import { logger } from "../utils/logger"
 import { FeedbackService } from "./feedback.service"
@@ -72,32 +73,9 @@ export const DomService = {
   },
 
   /**
-   * Get style for a specific level
+   * Get style for a specific level (delegates to theme constants)
    */
-  getLevelStyle: (level: string | number): { backgroundColor: string; color: string } => {
-    const lvl = String(level).toLowerCase()
-
-    // Default style
-    const style = { backgroundColor: "", color: "" }
-
-    if (lvl.includes("start")) {
-      // Startniveau uses Portflow's badge colors
-    } else if (lvl === "1") {
-      style.backgroundColor = "#33A3FF"
-      style.color = "#e6f4ff"
-    } else if (lvl === "2") {
-      style.backgroundColor = "#0A91FF"
-      style.color = "#e6f4ff"
-    } else if (lvl === "3") {
-      style.backgroundColor = "#007BE0"
-      style.color = "#e6f4ff"
-    } else if (lvl === "4") {
-      style.backgroundColor = "#0065B8"
-      style.color = "#e6f4ff"
-    }
-
-    return style
-  },
+  getLevelStyle,
 
   /**
    * Create a native-styled badge element

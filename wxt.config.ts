@@ -10,7 +10,7 @@ export default defineConfig({
     name: "Portflow Extended",
     description: "A production-grade extension to enhance Portflow features.",
     version: "0.0.1",
-    permissions: ["storage", "tabs", "activeTab", "webRequest"],
+    permissions: ["storage"],
     host_permissions: [
       "https://canvas.hu.nl/accounts/1/external_tools/1134",
       "https://portfolio.drieam.app/*",
