@@ -81,10 +81,8 @@ export const DomService = {
     const style = { backgroundColor: "", color: "" }
 
     if (lvl.includes("start")) {
-      // Startniveau
-      style.backgroundColor = "#5CB6FF"
-      style.color = "#e6f4ff"
-    } else if (lvl === "2") {
+      // Startniveau uses Portflow's badge colors
+    } else if (lvl === "1") {
       style.backgroundColor = "#33A3FF"
       style.color = "#e6f4ff"
     } else if (lvl === "2") {
