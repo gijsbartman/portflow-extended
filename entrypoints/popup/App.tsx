@@ -1,10 +1,24 @@
 import "@/assets/tailwind.css"
+import { AlertCircle, AlertTriangle, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
+import { curriculum } from "../../src/constants/curriculum"
 import { StateService, type ExtensionState } from "../../src/services/state.service"
+import { AssessmentGroup } from "./components/assessment-group"
+import { BenodighedenGroup } from "./components/benodigheden-group"
+import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert"
+import {
+  Requirements,
+  RequirementsGroup,
+  RequirementsHeader,
+  RequirementsSelect,
+} from "./components/ui/requirements"
+import { VereistenGroup } from "./components/vereisten-group"
+import { VoortgangList } from "./components/voortgang-list"
 
 function App() {
   const [state, setState] = useState<ExtensionState | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedCourseIndex, setSelectedCourseIndex] = useState<number | null>(null)
 
   useEffect(() => {
     const loadState = async () => {
@@ -33,140 +47,62 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[300px] w-[320px] items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+      <div className="flex h-[500px] w-[360px] items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
       </div>
     )
   }
 
+  const selectedCourse = selectedCourseIndex !== null ? curriculum[selectedCourseIndex] : null
+  const nextCourse =
+    selectedCourseIndex !== null && selectedCourseIndex < curriculum.length - 1
+      ? curriculum[selectedCourseIndex + 1]
+      : null
+
   return (
-    <div className="h-[300px] w-[320px] bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-      {/* Header */}
-      <div className="border-b border-slate-700/50 px-4 py-3">
+    <div id="portflow-extended-popup" className="h-fit max-h-[500px] w-[360px] overflow-y-auto">
+      <header className="sticky inset-x-0 top-0 border-b border-slate-200 bg-[#1677ff] px-4 py-2 text-white">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </div>
           <div>
             <h1 className="text-sm font-semibold">Portflow Extended</h1>
-            <p className="text-xs text-slate-400">Goal Insights Dashboard</p>
+            <p
+              className="text-xs opacity-80"
+              title="Ga in Portflow naar 'Doelen & Voortgang' om te updaten"
+            >
+              Updated {StateService.formatLastUpdated(state?.lastUpdated ?? null)}
+            </p>
           </div>
         </div>
-      </div>
+      </header>
+      <main>
+        <Requirements summaries={state?.summaries ?? []}>
+          <RequirementsSelect className="border-b border-slate-200 px-3 pt-2 pb-3" />
+          <RequirementsGroup>
+            <RequirementsHeader>Voortgang</RequirementsHeader>
+            <VoortgangList />
+          </RequirementsGroup>
+          <VereistenGroup />
+          <AssessmentGroup />
+          <BenodighedenGroup />
+        </Requirements>
 
-      {/* Status Section */}
-      <div className="px-4 py-3">
-        <div className="rounded-lg bg-slate-800/50 p-3">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Status</span>
-            <StatusBadge status={state?.status ?? "idle"} />
-          </div>
+        {selectedCourse && (!state?.summaries || state.summaries.length === 0) && (
+          <Alert variant="warning">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Geen data beschikbaar</AlertTitle>
+            <AlertDescription>
+              Navigeer in Portflow naar "Doelen & Voortgang" om je voortgang te laden
+            </AlertDescription>
+          </Alert>
+        )}
 
-          {state?.error && (
-            <div className="mt-2 rounded bg-red-500/10 px-2 py-1.5 text-xs text-red-400">
-              {state.error}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3 px-4">
-        <StatCard
-          label="Goals Tracked"
-          value={state?.goalCount ?? 0}
-          icon={
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
-          }
-        />
-        <StatCard
-          label="Last Updated"
-          value={StateService.formatLastUpdated(state?.lastUpdated ?? null)}
-          icon={
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          }
-        />
-      </div>
-
-      {/* Portfolio Info */}
-      {state?.portfolioId && (
-        <div className="px-4 pt-3">
-          <div className="rounded-lg border border-slate-700/50 bg-slate-800/30 p-3">
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-              <span>Portfolio ID: {state.portfolioId}</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <div className="absolute right-0 bottom-0 left-0 border-t border-slate-700/50 bg-slate-900/50 px-4 py-2">
-        <p className="text-center text-[10px] text-slate-500">
-          Navigate to Portflow to see goal insights
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function StatusBadge({ status }: { status: ExtensionState["status"] }) {
-  const config = {
-    idle: { label: "Idle", className: "bg-slate-600" },
-    loading: { label: "Loading...", className: "bg-blue-500 animate-pulse" },
-    success: { label: "Active", className: "bg-emerald-500" },
-    error: { label: "Error", className: "bg-red-500" },
-  }
-
-  const { label, className } = config[status]
-
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${className}`}>{label}</span>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  icon,
-}: {
-  label: string
-  value: string | number
-  icon: React.ReactNode
-}) {
-  return (
-    <div className="rounded-lg border border-slate-700/50 bg-slate-800/30 p-3">
-      <div className="mb-1 flex items-center gap-1.5 text-blue-400">{icon}</div>
-      <p className="text-lg font-semibold">{value}</p>
-      <p className="text-[10px] text-slate-400">{label}</p>
+        {state?.error && (
+          <Alert variant="error">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{state.error}</AlertDescription>
+          </Alert>
+        )}
+      </main>
     </div>
   )
 }

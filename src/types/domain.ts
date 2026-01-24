@@ -46,3 +46,18 @@ export interface FeedbackCompleteEvent {
   results: GoalWithFeedback[]
   summaries: GoalSummary[]
 }
+
+type SkillLevel = 0 | 1 | 2 | 3 | 4
+
+export type SkillLevels = {
+  [K in SkillLevel as `level_${K}`]?: number
+}
+
+export interface Course {
+  year: number
+  semester: number
+  course: string
+  skills_general: SkillLevels
+  kpm_level: number | null
+  hboi: SkillLevels | null
+}

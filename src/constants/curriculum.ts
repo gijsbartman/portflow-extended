@@ -1,0 +1,60 @@
+import { Course } from "../types"
+
+export const curriculum: Course[] = [
+  {
+    year: 1,
+    semester: 1,
+    course: "Open Propedeuse Prod & Dev. 1",
+    skills_general: { level_1: 4 },
+    kpm_level: null,
+    hboi: null,
+  },
+  {
+    year: 1,
+    semester: 2,
+    course: "Open Propedeuse Prod & Dev. 2",
+    skills_general: { level_0: 2, level_1: 7 },
+    kpm_level: 1,
+    hboi: { level_1: 4 },
+  },
+  {
+    year: 2,
+    semester: 1,
+    course: "Open Projecten 1 met beroepsrol",
+    skills_general: { level_1: 6, level_2: 3 },
+    kpm_level: 1,
+    hboi: { level_1: 6 },
+  },
+  {
+    year: 2,
+    semester: 2,
+    course: "Open projecten 2 met beroepsrol",
+    skills_general: { level_1: 2, level_2: 7 },
+    kpm_level: 2,
+    hboi: { level_1: 2, level_2: 4 },
+  },
+  {
+    year: 3,
+    semester: 1,
+    course: "Open Innovation 1 met beroepsrol",
+    skills_general: { level_2: 8, level_3: 1 },
+    kpm_level: 2,
+    hboi: { level_2: 4, level_3: 1 },
+  },
+  {
+    year: 3,
+    semester: 2,
+    course: "Open Innovation 2 met beroepsrol",
+    skills_general: { level_2: 6, level_3: 3 },
+    kpm_level: 3,
+    hboi: { level_2: 4, level_3: 2 },
+  },
+  {
+    year: 4,
+    semester: 1,
+    course: "Open Innovation 3 + beroepsrol",
+    skills_general: { level_2: 4, level_3: 5 },
+    kpm_level: 3,
+    hboi: { level_2: 4, level_3: 2 },
+  },
+]
