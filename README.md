@@ -51,7 +51,7 @@ pnpm zip:firefox
 
 If you want to use the extension without the dev server, you have three options to obtain the package:
 
-1.  **Download a Release**: Go to the Releases page, download the `.zip` file, and unzip it.
+1.  **Download a Release**: Go to the [Releases](https://github.com/gijsbartman/portflow-extended/releases) page, download the `.zip` file, and unzip it.
 2.  **Build from Source**: Run `pnpm build` to create a production build in `.output/chrome-mv3`.
 3.  **Zip from Source**: Run `pnpm zip` to create a zip file in `.output/`, then unzip it.
 
@@ -82,6 +82,23 @@ You're all set! Note that you may need to reload the extension from this page if
   Injects stats directly into the Portflow interface and offers a comprehensive popup overview.
 
   <img width="1677" height="933" alt="Screenshot 2026-01-25 at 12 51 14" src="https://github.com/user-attachments/assets/0e7950ea-6804-4783-b790-de245af750b0" />
+
+## How It Works
+
+The extension operates by enhancing the existing Portflow application flow:
+
+1.  **Interception**: When you navigate to **"Doelen & Voortgang"**, the extension intercepts the internal API call to `/api/v1/portfolios/*/goals?*`.
+2.  **Filtering**: It identifies goals with specific statuses (`not_yet_started` or `on_hold`).
+    > **Note:** Ensure your skills are set to one of these statuses to be tracked correctly.
+3.  **Data Fetching**: Since Portflow does not provide a public API for aggregate usage, we queue individual requests for each target goal to:
+    `https://portfolio.drieam.app/api/v1/portfolios/:portfolioId/goals/:goalId/feedback-items`
+4.  **Processing & Storage**: The fetched data is processed to calculate your current and highest levels, then saved to the browser's local storage.
+5.  **Visuals**:
+    - **DOM Injection**: Custom badges are injected directly into the goal cards on the page.
+    - **Popup**: The extension popup reads the persisted data from storage to generate the curriculum overview.
+
+**To update your data:** Simply navigate to the "Doelen & Voortgang" page in Portflow.
+
 
 ## Documentation
 
