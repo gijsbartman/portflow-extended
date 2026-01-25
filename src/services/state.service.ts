@@ -1,16 +1,4 @@
-import type { GoalSummary } from "../types"
-
-/**
- * Extension state types
- */
-export interface ExtensionState {
-  status: "idle" | "loading" | "success" | "error"
-  lastUpdated: number | null
-  portfolioId: string | null
-  summaries: GoalSummary[]
-  error: string | null
-  goalCount: number
-}
+import type { ExtensionState, GoalSummary } from "../types"
 
 const STORAGE_KEY = "portflow-ext-state"
 

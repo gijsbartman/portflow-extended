@@ -1,9 +1,14 @@
 import { CONFIG } from "../constants/config"
-import type { curriculum } from "../constants/curriculum"
-import type { GoalSummary } from "../types"
-
-type Course = (typeof curriculum)[number]
-type LevelStatus = "op_niveau" | "niet_op_niveau" | "boven_niveau"
+import type {
+  Course,
+  EvaluationSummaryResult,
+  GoalSummary,
+  GoalWithEvaluationStatus,
+  LevelStatus,
+  MissingRequirements,
+  SkillLevels,
+  UserProgress,
+} from "../types"
 
 /**
  * Check if a goal is HBOI (starts with HBOi-)
@@ -164,20 +169,6 @@ export const getRequirementsStatus = (summaries: GoalSummary[], course: Course) 
   }
 }
 
-type SkillLevels = {
-  level_0?: number
-  level_1?: number
-  level_2?: number
-  level_3?: number
-  level_4?: number
-}
-
-interface UserProgress {
-  skills: SkillLevels | null
-  hboi: SkillLevels | null
-  kpm: number | null
-}
-
 /**
  * Get user's current progress in SkillLevels format
  * Counts goals that meet the evaluation requirements at each level
@@ -222,12 +213,6 @@ export const getUserProgress = (summaries: GoalSummary[]): UserProgress => {
     hboi: Object.keys(hboiLevels).length > 0 ? hboiLevels : null,
     kpm: kpmLevel,
   }
-}
-
-interface MissingRequirements {
-  skills: SkillLevels | null
-  hboi: SkillLevels | null
-  kpm: number | null
 }
 
 /**
@@ -307,28 +292,13 @@ export const getMissingRequirements = (
   }
 }
 
-export interface GoalWithInsufficientEvals {
-  nickname: string
-  name: string
-  currentEvals: number
-  requiredEvals: number
-  missingEvals: number
-  highestLevel: string | null
-}
-
-export interface InsufficientEvalsResult {
-  skills: GoalWithInsufficientEvals[]
-  kpm: GoalWithInsufficientEvals | null
-  hboi: GoalWithInsufficientEvals[]
-}
-
 /**
  * Get all goals that don't have the minimum required evaluations
  * Returns skills, KPM, and HBO-I that have some progress but need more evaluations
  */
 export const getGoalsWithInsufficientEvals = (
   summaries: GoalSummary[]
-): InsufficientEvalsResult => {
+): EvaluationSummaryResult => {
   // Skills
   const skillGoals = summaries.filter((s) => isSkillGoal(s.goal.nickname))
   const skills = skillGoals
@@ -349,7 +319,7 @@ export const getGoalsWithInsufficientEvals = (
 
   // KPM
   const kpmGoal = summaries.find((s) => isKPMGoal(s.goal.nickname))
-  let kpm: GoalWithInsufficientEvals | null = null
+  let kpm: GoalWithEvaluationStatus | null = null
   if (kpmGoal) {
     const hasProgress = kpmGoal.highestLevel && kpmGoal.highestLevel !== "-"
     const needsMoreEvals = kpmGoal.evalCounts.valid < CONFIG.REQUIREMENTS.KPM_MIN_EVALS
@@ -386,24 +356,10 @@ export const getGoalsWithInsufficientEvals = (
   return { skills, kpm, hboi }
 }
 
-export interface GoalWithEvals {
-  nickname: string
-  name: string
-  currentEvals: number
-  requiredEvals: number
-  highestLevel: string | null
-}
-
-export interface AllEvalsResult {
-  skills: GoalWithEvals[]
-  hboi: GoalWithEvals[]
-  kpm: GoalWithEvals | null
-}
-
 /**
  * Get all goals with their evaluation counts
  */
-export const getAllGoalEvals = (summaries: GoalSummary[]): AllEvalsResult => {
+export const getAllGoalEvals = (summaries: GoalSummary[]): EvaluationSummaryResult => {
   // Skills
   const skillGoals = summaries.filter((s) => isSkillGoal(s.goal.nickname))
   const skills = skillGoals
@@ -418,7 +374,7 @@ export const getAllGoalEvals = (summaries: GoalSummary[]): AllEvalsResult => {
 
   // KPM
   const kpmGoal = summaries.find((s) => isKPMGoal(s.goal.nickname))
-  let kpm: GoalWithEvals | null = null
+  let kpm: GoalWithEvaluationStatus | null = null
   if (kpmGoal) {
     kpm = {
       nickname: kpmGoal.goal.nickname,

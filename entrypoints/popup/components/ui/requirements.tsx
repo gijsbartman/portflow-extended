@@ -1,27 +1,26 @@
 import { curriculum } from "@/src/constants/curriculum"
-import type { Course, GoalSummary, SkillLevels } from "@/src/types"
+import type {
+  Course,
+  GoalSummary,
+  LevelStatus,
+  MissingRequirements,
+  UserProgress,
+} from "@/src/types"
 import { cn } from "@/src/utils/cn"
 import {
   checkCourseLevel,
   getMissingRequirements,
   getUserProgress,
 } from "@/src/utils/level-checker.utils"
-import { createContext, useContext, useState, type HTMLAttributes, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+} from "react"
 import { Select, SelectLabel } from "./select"
-
-interface UserProgress {
-  skills: SkillLevels | null
-  hboi: SkillLevels | null
-  kpm: number | null
-}
-
-interface MissingRequirements {
-  skills: SkillLevels | null
-  hboi: SkillLevels | null
-  kpm: number | null
-}
-
-type LevelStatus = "op_niveau" | "niet_op_niveau" | "boven_niveau" | null
 
 interface RequirementsContextValue {
   selectedCourseIndex: number | null
@@ -52,33 +51,56 @@ interface RequirementsProps extends HTMLAttributes<HTMLDivElement> {
 
 function Requirements({ summaries, children, className, ...props }: RequirementsProps) {
   const [selectedCourseIndex, setSelectedCourseIndex] = useState<number | null>(null)
-  const selectedCourse = selectedCourseIndex !== null ? curriculum[selectedCourseIndex] : null
-  const nextCourse =
-    selectedCourseIndex !== null && selectedCourseIndex < curriculum.length - 1
-      ? curriculum[selectedCourseIndex + 1]
-      : null
 
-  const userProgress = getUserProgress(summaries)
-  const status = selectedCourse ? checkCourseLevel(summaries, selectedCourse, nextCourse) : null
-  const missingForCurrent = selectedCourse
-    ? getMissingRequirements(summaries, selectedCourse)
-    : null
-  const missingForNext = nextCourse ? getMissingRequirements(summaries, nextCourse) : null
+  const { selectedCourse, nextCourse, userProgress, status, missingForCurrent, missingForNext } =
+    useMemo(() => {
+      const selected = selectedCourseIndex !== null ? curriculum[selectedCourseIndex] : null
+      const next =
+        selectedCourseIndex !== null && selectedCourseIndex < curriculum.length - 1
+          ? curriculum[selectedCourseIndex + 1]
+          : null
+
+      const progress = getUserProgress(summaries)
+      const currentStatus = selected ? checkCourseLevel(summaries, selected, next) : null
+      const missingCurrent = selected ? getMissingRequirements(summaries, selected) : null
+      const missingNext = next ? getMissingRequirements(summaries, next) : null
+
+      return {
+        selectedCourse: selected,
+        nextCourse: next,
+        userProgress: progress,
+        status: currentStatus,
+        missingForCurrent: missingCurrent,
+        missingForNext: missingNext,
+      }
+    }, [summaries, selectedCourseIndex])
+
+  const contextValue = useMemo(
+    () => ({
+      selectedCourseIndex,
+      setSelectedCourseIndex,
+      selectedCourse,
+      nextCourse,
+      summaries,
+      userProgress,
+      status,
+      missingForCurrent,
+      missingForNext,
+    }),
+    [
+      selectedCourseIndex,
+      selectedCourse,
+      nextCourse,
+      summaries,
+      userProgress,
+      status,
+      missingForCurrent,
+      missingForNext,
+    ]
+  )
 
   return (
-    <RequirementsContext.Provider
-      value={{
-        selectedCourseIndex,
-        setSelectedCourseIndex,
-        selectedCourse,
-        nextCourse,
-        summaries,
-        userProgress,
-        status,
-        missingForCurrent,
-        missingForNext,
-      }}
-    >
+    <RequirementsContext.Provider value={contextValue}>
       <div data-slot="requirements" className={cn(className)} {...props}>
         {children}
       </div>

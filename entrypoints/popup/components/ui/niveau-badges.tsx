@@ -17,7 +17,7 @@ export function NiveauBadges({ levels, className, ...props }: NiveauBadgesProps)
   }
 
   if (typeof levels === "number") {
-    const variant = `level_${levels}` as "level_1" | "level_2" | "level_3" | "level_4"
+    const variant = `level_${levels}` as "level_0" | "level_1" | "level_2" | "level_3" | "level_4"
     return (
       <div className={cn("flex items-center gap-1", className)} {...props}>
         <Badge variant={variant}>Niveau {levels}</Badge>
@@ -28,7 +28,12 @@ export function NiveauBadges({ levels, className, ...props }: NiveauBadgesProps)
   const requirementItems = Object.entries(levels)
     .map(([levelKey, count]) => {
       const levelNum = levelKey.replace("level_", "")
-      const variant = `level_${levelNum}` as "level_1" | "level_2" | "level_3" | "level_4"
+      const variant = `level_${levelNum}` as
+        | "level_0"
+        | "level_1"
+        | "level_2"
+        | "level_3"
+        | "level_4"
       return { levelNum: parseInt(levelNum, 10), count, variant }
     })
     .sort((a, b) => a.levelNum - b.levelNum)

@@ -36,7 +36,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground",
         "focus-visible:outline-ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-1",
         "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
-        "data-active:bg-[#1677ff] data-active:text-white",
+        "data-active:bg-primary data-active:text-primary-foreground",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}

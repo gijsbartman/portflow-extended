@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #1677ff;
+  --color-primary-foreground: #ffffff;
+
+  --color-level-0: #7abfff;
+  --color-level-0-foreground: #e6f4ff;
+
+  --color-level-1: #33a3ff;
+  --color-level-1-foreground: #e6f4ff;
+
+  --color-level-2: #0a91ff;
+  --color-level-2-foreground: #e6f4ff;
+
+  --color-level-3: #007be0;
+  --color-level-3-foreground: #e6f4ff;
+
+  --color-level-4: #0065b8;
+  --color-level-4-foreground: #e6f4ff;
+
+  --color-niet-op-niveau: #b8001f;
+  --color-niet-op-niveau-foreground: #ffebee;
+
+  --color-op-niveau: #007a33;
+  --color-op-niveau-foreground: #e6f9ee;
+
+  --color-boven-niveau: #0065b8;
+  --color-boven-niveau-foreground: #e6f4ff;
+}

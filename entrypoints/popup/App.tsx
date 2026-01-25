@@ -1,8 +1,9 @@
 import "@/assets/tailwind.css"
+import type { ExtensionState } from "@/src/types"
 import { AlertCircle, AlertTriangle, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { curriculum } from "../../src/constants/curriculum"
-import { StateService, type ExtensionState } from "../../src/services/state.service"
+import { StateService } from "../../src/services/state.service"
 import { AssessmentGroup } from "./components/assessment-group"
 import { BenodighedenGroup } from "./components/benodigheden-group"
 import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert"
@@ -44,7 +45,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="flex h-[500px] w-[360px] items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     )
   }
@@ -57,7 +58,7 @@ function App() {
 
   return (
     <div id="portflow-extended-popup" className="h-fit max-h-[600px] w-[360px] overflow-y-auto">
-      <header className="sticky inset-x-0 top-0 flex h-12 flex-col justify-center border-slate-200 bg-[#1677ff] px-4 text-white">
+      <header className="bg-primary sticky inset-x-0 top-0 flex h-12 flex-col justify-center border-slate-200 px-4 text-white">
         <h1 className="text-sm font-semibold">Portflow Extended</h1>
         <p
           className="text-xs opacity-80"

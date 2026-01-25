@@ -7,13 +7,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        level_1: "bg-[#33A3FF] text-[#e6f4ff]",
-        level_2: "bg-[#0A91FF] text-[#e6f4ff]",
-        level_3: "bg-[#007BE0] text-[#e6f4ff]",
-        level_4: "bg-[#0065B8] text-[#e6f4ff]",
-        niet_op_niveau: "bg-[#B8001F] text-[#FFEBEE]",
-        op_niveau: "bg-[#007A33] text-[#E6F9EE]",
-        boven_niveau: "bg-[#0065B8] text-[#e6f4ff]",
+        level_0: "bg-level-0 text-level-0-foreground",
+        level_1: "bg-level-1 text-level-1-foreground",
+        level_2: "bg-level-2 text-level-2-foreground",
+        level_3: "bg-level-3 text-level-3-foreground",
+        level_4: "bg-level-4 text-level-4-foreground",
+        niet_op_niveau: "bg-niet-op-niveau text-niet-op-niveau-foreground",
+        op_niveau: "bg-op-niveau text-op-niveau-foreground",
+        boven_niveau: "bg-boven-niveau text-boven-niveau-foreground",
         default: "bg-slate-100 text-slate-900",
       },
     },
