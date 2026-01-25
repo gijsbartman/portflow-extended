@@ -6,14 +6,10 @@ import { StateService, type ExtensionState } from "../../src/services/state.serv
 import { AssessmentGroup } from "./components/assessment-group"
 import { BenodighedenGroup } from "./components/benodigheden-group"
 import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert"
-import {
-  Requirements,
-  RequirementsGroup,
-  RequirementsHeader,
-  RequirementsSelect,
-} from "./components/ui/requirements"
+import { Requirements, RequirementsSelect } from "./components/ui/requirements"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
 import { VereistenGroup } from "./components/vereisten-group"
-import { VoortgangList } from "./components/voortgang-list"
+import { VoortgangGroup } from "./components/voortgang-group"
 
 function App() {
   const [state, setState] = useState<ExtensionState | null>(null)
@@ -60,30 +56,37 @@ function App() {
       : null
 
   return (
-    <div id="portflow-extended-popup" className="h-fit max-h-[500px] w-[360px] overflow-y-auto">
-      <header className="sticky inset-x-0 top-0 border-b border-slate-200 bg-[#1677ff] px-4 py-2 text-white">
-        <div className="flex items-center gap-2">
-          <div>
-            <h1 className="text-sm font-semibold">Portflow Extended</h1>
-            <p
-              className="text-xs opacity-80"
-              title="Ga in Portflow naar 'Doelen & Voortgang' om te updaten"
-            >
-              Updated {StateService.formatLastUpdated(state?.lastUpdated ?? null)}
-            </p>
-          </div>
-        </div>
+    <div id="portflow-extended-popup" className="h-fit max-h-[600px] w-[360px] overflow-y-auto">
+      <header className="sticky inset-x-0 top-0 flex h-12 flex-col justify-center border-slate-200 bg-[#1677ff] px-4 text-white">
+        <h1 className="text-sm font-semibold">Portflow Extended</h1>
+        <p
+          className="text-xs opacity-80"
+          title="Ga in Portflow naar 'Doelen & Voortgang' om te updaten"
+        >
+          Updated {StateService.formatLastUpdated(state?.lastUpdated ?? null)}
+        </p>
       </header>
       <main>
         <Requirements summaries={state?.summaries ?? []}>
-          <RequirementsSelect className="border-b border-slate-200 px-3 pt-2 pb-3" />
-          <RequirementsGroup>
-            <RequirementsHeader>Voortgang</RequirementsHeader>
-            <VoortgangList />
-          </RequirementsGroup>
-          <VereistenGroup />
-          <AssessmentGroup />
-          <BenodighedenGroup />
+          <Tabs>
+            <TabsList className="sticky top-12 w-full">
+              <TabsTrigger className="rounded-t-none" value="voortgang">
+                Voortgang
+              </TabsTrigger>
+              <TabsTrigger className="rounded-t-none" value="assessment">
+                Assessment
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="voortgang">
+              <VoortgangGroup />
+            </TabsContent>
+            <TabsContent value="assessment">
+              <RequirementsSelect className="border-b border-slate-200 px-3 pt-2 pb-3" />
+              <VereistenGroup />
+              <AssessmentGroup />
+              <BenodighedenGroup />
+            </TabsContent>
+          </Tabs>
         </Requirements>
 
         {selectedCourse && (!state?.summaries || state.summaries.length === 0) && (

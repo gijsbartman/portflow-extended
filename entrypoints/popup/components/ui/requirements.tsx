@@ -28,6 +28,7 @@ interface RequirementsContextValue {
   setSelectedCourseIndex: (index: number | null) => void
   selectedCourse: Course | null
   nextCourse: Course | null
+  summaries: GoalSummary[]
   userProgress: UserProgress
   status: LevelStatus
   missingForCurrent: MissingRequirements | null
@@ -36,7 +37,7 @@ interface RequirementsContextValue {
 
 const RequirementsContext = createContext<RequirementsContextValue | null>(null)
 
-export function useRequirements() {
+function useRequirements() {
   const context = useContext(RequirementsContext)
   if (!context) {
     throw new Error("Requirements compound components must be used within Requirements")
@@ -49,7 +50,7 @@ interface RequirementsProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode
 }
 
-export function Requirements({ summaries, children, className, ...props }: RequirementsProps) {
+function Requirements({ summaries, children, className, ...props }: RequirementsProps) {
   const [selectedCourseIndex, setSelectedCourseIndex] = useState<number | null>(null)
   const selectedCourse = selectedCourseIndex !== null ? curriculum[selectedCourseIndex] : null
   const nextCourse =
@@ -71,6 +72,7 @@ export function Requirements({ summaries, children, className, ...props }: Requi
         setSelectedCourseIndex,
         selectedCourse,
         nextCourse,
+        summaries,
         userProgress,
         status,
         missingForCurrent,
@@ -86,7 +88,7 @@ export function Requirements({ summaries, children, className, ...props }: Requi
 
 interface RequirementsSelectProps extends HTMLAttributes<HTMLDivElement> {}
 
-export function RequirementsSelect({ className, ...props }: RequirementsSelectProps) {
+function RequirementsSelect({ className, ...props }: RequirementsSelectProps) {
   const { selectedCourseIndex, setSelectedCourseIndex } = useRequirements()
 
   return (
@@ -113,7 +115,7 @@ export function RequirementsSelect({ className, ...props }: RequirementsSelectPr
 
 interface RequirementsGroupProps extends HTMLAttributes<HTMLDivElement> {}
 
-export function RequirementsGroup({ className, children, ...props }: RequirementsGroupProps) {
+function RequirementsGroup({ className, children, ...props }: RequirementsGroupProps) {
   return (
     <div className={cn("space-y-2 border-b border-slate-200 px-3 py-2", className)} {...props}>
       {children}
@@ -123,7 +125,7 @@ export function RequirementsGroup({ className, children, ...props }: Requirement
 
 interface RequirementsHeaderProps extends HTMLAttributes<HTMLDivElement> {}
 
-export function RequirementsHeader({ className, children, ...props }: RequirementsHeaderProps) {
+function RequirementsHeader({ className, children, ...props }: RequirementsHeaderProps) {
   return (
     <h4
       className={cn("text-xs font-semibold tracking-wider text-slate-500 uppercase", className)}
@@ -136,7 +138,7 @@ export function RequirementsHeader({ className, children, ...props }: Requiremen
 
 interface RequirementsListProps extends HTMLAttributes<HTMLDivElement> {}
 
-export function RequirementsList({ className, children, ...props }: RequirementsListProps) {
+function RequirementsList({ className, children, ...props }: RequirementsListProps) {
   return (
     <div className={cn("space-y-1", className)} {...props}>
       {children}
@@ -148,7 +150,7 @@ interface RequirementsItemProps extends HTMLAttributes<HTMLDivElement> {
   label: string
 }
 
-export function RequirementsItem({ label, children, className, ...props }: RequirementsItemProps) {
+function RequirementsItem({ label, children, className, ...props }: RequirementsItemProps) {
   return (
     <div
       data-slot="requirements-item"
@@ -162,4 +164,14 @@ export function RequirementsItem({ label, children, className, ...props }: Requi
       <div className="flex items-start gap-1.5">{children}</div>
     </div>
   )
+}
+
+export {
+  Requirements,
+  RequirementsGroup,
+  RequirementsHeader,
+  RequirementsItem,
+  RequirementsList,
+  RequirementsSelect,
+  useRequirements,
 }

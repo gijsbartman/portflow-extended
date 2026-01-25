@@ -12,4 +12,10 @@ export const CONFIG = {
   EVENTS: {
     FEEDBACK_COMPLETE: "portflow-ext-feedback-complete",
   },
+
+  REQUIREMENTS: {
+    SKILLS_MIN_EVALS: 2,
+    HBOI_MIN_EVALS: 1,
+    KPM_MIN_EVALS: 2,
+  },
 }

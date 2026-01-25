@@ -1,3 +1,4 @@
+import { CONFIG } from "../constants/config"
 import type { curriculum } from "../constants/curriculum"
 import type { GoalSummary } from "../types"
 
@@ -62,7 +63,9 @@ const hasSkillRequirements = (
       return achievedLevel !== null && achievedLevel >= requiredLevel
     })
 
-    const qualified = levelQualified.filter((s) => s.evalCounts.valid >= 2)
+    const qualified = levelQualified.filter(
+      (s) => s.evalCounts.valid >= CONFIG.REQUIREMENTS.SKILLS_MIN_EVALS
+    )
 
     if (qualified.length < requiredCount) {
       return false
@@ -88,7 +91,7 @@ const hasHBOIRequirements = (
     const requiredLevel = parseInt(levelKey.replace("level_", ""), 10)
 
     const qualified = hboiGoals.filter((s) => {
-      const hasEnoughEvals = s.evalCounts.valid >= 1
+      const hasEnoughEvals = s.evalCounts.valid >= CONFIG.REQUIREMENTS.HBOI_MIN_EVALS
       const achievedLevel = parseLevelString(s.highestLevel)
       return hasEnoughEvals && achievedLevel !== null && achievedLevel >= requiredLevel
     })
@@ -111,7 +114,7 @@ const hasKPMRequirement = (summaries: GoalSummary[], requiredLevel: number | nul
   const kpmGoal = summaries.find((s) => isKPMGoal(s.goal.nickname))
   if (!kpmGoal) return false
 
-  const hasEnoughEvals = kpmGoal.evalCounts.valid >= 2
+  const hasEnoughEvals = kpmGoal.evalCounts.valid >= CONFIG.REQUIREMENTS.KPM_MIN_EVALS
   const achievedLevel = parseLevelString(kpmGoal.highestLevel)
 
   return hasEnoughEvals && achievedLevel !== null && achievedLevel >= requiredLevel
@@ -187,7 +190,7 @@ export const getUserProgress = (summaries: GoalSummary[]): UserProgress => {
   // Count skills at each level (needs 2+ evals)
   const skillLevels: SkillLevels = {}
   for (const goal of skillGoals) {
-    if (goal.evalCounts.valid >= 2) {
+    if (goal.evalCounts.valid >= CONFIG.REQUIREMENTS.SKILLS_MIN_EVALS) {
       const level = parseLevelString(goal.highestLevel)
       if (level !== null) {
         const key = `level_${level}` as keyof SkillLevels
@@ -199,7 +202,7 @@ export const getUserProgress = (summaries: GoalSummary[]): UserProgress => {
   // Count HBOI at each level (needs 1+ eval)
   const hboiLevels: SkillLevels = {}
   for (const goal of hboiGoals) {
-    if (goal.evalCounts.valid >= 1) {
+    if (goal.evalCounts.valid >= CONFIG.REQUIREMENTS.HBOI_MIN_EVALS) {
       const level = parseLevelString(goal.highestLevel)
       if (level !== null) {
         const key = `level_${level}` as keyof SkillLevels
@@ -210,7 +213,7 @@ export const getUserProgress = (summaries: GoalSummary[]): UserProgress => {
 
   // Get KPM level (needs 2+ evals)
   let kpmLevel: number | null = null
-  if (kpmGoal && kpmGoal.evalCounts.valid >= 2) {
+  if (kpmGoal && kpmGoal.evalCounts.valid >= CONFIG.REQUIREMENTS.KPM_MIN_EVALS) {
     kpmLevel = parseLevelString(kpmGoal.highestLevel)
   }
 
@@ -247,7 +250,11 @@ export const getMissingRequirements = (
 
       const qualified = skillGoals.filter((s) => {
         const achievedLevel = parseLevelString(s.highestLevel)
-        return achievedLevel !== null && achievedLevel >= requiredLevel && s.evalCounts.valid >= 2
+        return (
+          achievedLevel !== null &&
+          achievedLevel >= requiredLevel &&
+          s.evalCounts.valid >= CONFIG.REQUIREMENTS.SKILLS_MIN_EVALS
+        )
       })
 
       const missing = requiredCount - qualified.length
@@ -266,7 +273,11 @@ export const getMissingRequirements = (
 
       const qualified = hboiGoals.filter((s) => {
         const achievedLevel = parseLevelString(s.highestLevel)
-        return achievedLevel !== null && achievedLevel >= requiredLevel && s.evalCounts.valid >= 1
+        return (
+          achievedLevel !== null &&
+          achievedLevel >= requiredLevel &&
+          s.evalCounts.valid >= CONFIG.REQUIREMENTS.HBOI_MIN_EVALS
+        )
       })
 
       const missing = requiredCount - qualified.length
@@ -281,7 +292,9 @@ export const getMissingRequirements = (
   let missingKpm: number | null = null
   if (course.kpm_level !== null) {
     const achievedLevel =
-      kpmGoal && kpmGoal.evalCounts.valid >= 2 ? parseLevelString(kpmGoal.highestLevel) : null
+      kpmGoal && kpmGoal.evalCounts.valid >= CONFIG.REQUIREMENTS.KPM_MIN_EVALS
+        ? parseLevelString(kpmGoal.highestLevel)
+        : null
     if (achievedLevel === null || achievedLevel < course.kpm_level) {
       missingKpm = course.kpm_level
     }
@@ -292,4 +305,141 @@ export const getMissingRequirements = (
     hboi: Object.keys(missingHboi).length > 0 ? missingHboi : null,
     kpm: missingKpm,
   }
+}
+
+export interface GoalWithInsufficientEvals {
+  nickname: string
+  name: string
+  currentEvals: number
+  requiredEvals: number
+  missingEvals: number
+  highestLevel: string | null
+}
+
+export interface InsufficientEvalsResult {
+  skills: GoalWithInsufficientEvals[]
+  kpm: GoalWithInsufficientEvals | null
+  hboi: GoalWithInsufficientEvals[]
+}
+
+/**
+ * Get all goals that don't have the minimum required evaluations
+ * Returns skills, KPM, and HBO-I that have some progress but need more evaluations
+ */
+export const getGoalsWithInsufficientEvals = (
+  summaries: GoalSummary[]
+): InsufficientEvalsResult => {
+  // Skills
+  const skillGoals = summaries.filter((s) => isSkillGoal(s.goal.nickname))
+  const skills = skillGoals
+    .filter((s) => {
+      const hasProgress = s.highestLevel && s.highestLevel !== "-"
+      const needsMoreEvals = s.evalCounts.valid < CONFIG.REQUIREMENTS.SKILLS_MIN_EVALS
+      return hasProgress && needsMoreEvals
+    })
+    .map((s) => ({
+      nickname: s.goal.nickname,
+      name: s.goal.name,
+      currentEvals: s.evalCounts.valid,
+      requiredEvals: CONFIG.REQUIREMENTS.SKILLS_MIN_EVALS,
+      missingEvals: CONFIG.REQUIREMENTS.SKILLS_MIN_EVALS - s.evalCounts.valid,
+      highestLevel: s.highestLevel,
+    }))
+    .sort((a, b) => a.missingEvals - b.missingEvals)
+
+  // KPM
+  const kpmGoal = summaries.find((s) => isKPMGoal(s.goal.nickname))
+  let kpm: GoalWithInsufficientEvals | null = null
+  if (kpmGoal) {
+    const hasProgress = kpmGoal.highestLevel && kpmGoal.highestLevel !== "-"
+    const needsMoreEvals = kpmGoal.evalCounts.valid < CONFIG.REQUIREMENTS.KPM_MIN_EVALS
+    if (hasProgress && needsMoreEvals) {
+      kpm = {
+        nickname: kpmGoal.goal.nickname,
+        name: kpmGoal.goal.name,
+        currentEvals: kpmGoal.evalCounts.valid,
+        requiredEvals: CONFIG.REQUIREMENTS.KPM_MIN_EVALS,
+        missingEvals: CONFIG.REQUIREMENTS.KPM_MIN_EVALS - kpmGoal.evalCounts.valid,
+        highestLevel: kpmGoal.highestLevel,
+      }
+    }
+  }
+
+  // HBO-I
+  const hboiGoals = summaries.filter((s) => isHBOIGoal(s.goal.nickname))
+  const hboi = hboiGoals
+    .filter((s) => {
+      const hasProgress = s.highestLevel && s.highestLevel !== "-"
+      const needsMoreEvals = s.evalCounts.valid < CONFIG.REQUIREMENTS.HBOI_MIN_EVALS
+      return hasProgress && needsMoreEvals
+    })
+    .map((s) => ({
+      nickname: s.goal.nickname,
+      name: s.goal.name,
+      currentEvals: s.evalCounts.valid,
+      requiredEvals: CONFIG.REQUIREMENTS.HBOI_MIN_EVALS,
+      missingEvals: CONFIG.REQUIREMENTS.HBOI_MIN_EVALS - s.evalCounts.valid,
+      highestLevel: s.highestLevel,
+    }))
+    .sort((a, b) => a.missingEvals - b.missingEvals)
+
+  return { skills, kpm, hboi }
+}
+
+export interface GoalWithEvals {
+  nickname: string
+  name: string
+  currentEvals: number
+  requiredEvals: number
+  highestLevel: string | null
+}
+
+export interface AllEvalsResult {
+  skills: GoalWithEvals[]
+  hboi: GoalWithEvals[]
+  kpm: GoalWithEvals | null
+}
+
+/**
+ * Get all goals with their evaluation counts
+ */
+export const getAllGoalEvals = (summaries: GoalSummary[]): AllEvalsResult => {
+  // Skills
+  const skillGoals = summaries.filter((s) => isSkillGoal(s.goal.nickname))
+  const skills = skillGoals
+    .map((s) => ({
+      nickname: s.goal.nickname,
+      name: s.goal.name,
+      currentEvals: s.evalCounts.valid,
+      requiredEvals: CONFIG.REQUIREMENTS.SKILLS_MIN_EVALS,
+      highestLevel: s.highestLevel,
+    }))
+    .sort((a, b) => a.nickname.localeCompare(b.nickname, undefined, { numeric: true }))
+
+  // KPM
+  const kpmGoal = summaries.find((s) => isKPMGoal(s.goal.nickname))
+  let kpm: GoalWithEvals | null = null
+  if (kpmGoal) {
+    kpm = {
+      nickname: kpmGoal.goal.nickname,
+      name: kpmGoal.goal.name,
+      currentEvals: kpmGoal.evalCounts.valid,
+      requiredEvals: CONFIG.REQUIREMENTS.KPM_MIN_EVALS,
+      highestLevel: kpmGoal.highestLevel,
+    }
+  }
+
+  // HBO-I
+  const hboiGoals = summaries.filter((s) => isHBOIGoal(s.goal.nickname))
+  const hboi = hboiGoals
+    .map((s) => ({
+      nickname: s.goal.nickname,
+      name: s.goal.name,
+      currentEvals: s.evalCounts.valid,
+      requiredEvals: CONFIG.REQUIREMENTS.HBOI_MIN_EVALS,
+      highestLevel: s.highestLevel,
+    }))
+    .sort((a, b) => a.nickname.localeCompare(b.nickname, undefined, { numeric: true }))
+
+  return { skills, kpm, hboi }
 }
