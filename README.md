@@ -83,13 +83,29 @@ You're all set! Note that you may need to reload the extension from this page if
 
   <img width="1677" height="933" alt="Screenshot 2026-01-25 at 12 51 14" src="https://github.com/user-attachments/assets/0e7950ea-6804-4783-b790-de245af750b0" />
 
+## Goal Configuration
+
+For the extension to correctly identify and categorize your goals, they must be configured in Portflow with specific properties.
+
+<img width="517" height="661" alt="image" src="https://github.com/user-attachments/assets/b2933ccc-6770-4112-a240-4854392075bd" />
+
+1.  **Unique Identifier (Bijnaam)**: This field is crucial for categorization.
+    - **HBO-I Goals**: Must start with `HBOi-` (e.g., `HBOi-SR` for Software Realiseren).
+    - **KPM**: Must be exactly `1.2-KPM`.
+    - **Skills**: Any other nickname is treated as a general skill (e.g., `1.1-JKO`).
+2.  **Display Name (Naam)**: Used for display purposes in the extension popup.
+3.  **Status**: The extension **ONLY** tracks goals with the following statuses:
+    - `Niet gestart` (Not yet started)
+    - `Gepauzeerd` (On hold)
+
+**Important:** Goals with other statuses (like "Mee bezig" or "Klaar") are ignored to keep the overview focused on active curriculum planning.
+
 ## How It Works
 
 The extension operates by enhancing the existing Portflow application flow:
 
 1.  **Interception**: When you navigate to **"Doelen & Voortgang"**, the extension intercepts the internal API call to `/api/v1/portfolios/*/goals?*`.
-2.  **Filtering**: It identifies goals with specific statuses (`not_yet_started` or `on_hold`).
-    > **Note:** Ensure your skills are set to one of these statuses to be tracked correctly.
+2.  **Filtering**: It identifies goals based on the statuses defined in the **Goal Configuration** section above.
 3.  **Data Fetching**: Since Portflow does not provide a public API for aggregate usage, we queue individual requests for each target goal to:
     `https://portfolio.drieam.app/api/v1/portfolios/:portfolioId/goals/:goalId/feedback-items`
 4.  **Processing & Storage**: The fetched data is processed to calculate your current and highest levels, then saved to the browser's local storage.
@@ -98,7 +114,6 @@ The extension operates by enhancing the existing Portflow application flow:
     - **Popup**: The extension popup reads the persisted data from storage to generate the curriculum overview.
 
 **To update your data:** Simply navigate to the "Doelen & Voortgang" page in Portflow.
-
 
 ## Documentation
 
