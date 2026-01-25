@@ -1,108 +1,98 @@
 # Portflow Extended
 
-A production-grade Chrome extension that enhances the Portflow portfolio platform by providing real-time goal feedback insights directly in the UI.
+Portflow Extended is a production-grade Chrome extension designed to enhance the Portflow experience. It provides detailed insights into your progress, including skill levels, evaluation counts, and missing requirements for your specific curriculum.
 
-## Features
+## Getting Started
 
-- **Goal Feedback Tracking**: Automatically fetches and displays evaluation data for your portfolio goals
-- **Visual Badges**: Shows recent level, highest level achieved, and evaluation counts
-- **Real-time Updates**: Monitors API calls and updates the UI dynamically
-- **Persistent State**: Saves data locally for quick access via the popup
-- **Modern UI**: Clean, professional interface that matches Portflow's design language
-
-## Installation
+There are a few ways to get up and running, depending on whether you are developing features or just want to use the extension.
 
 ### Development
 
-1. Clone the repository:
-
-   ```bash
-   git clone <repository-url>
-   cd portflow-extended
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   pnpm install
-   ```
-
-3. Start development server:
-
-   ```bash
-   pnpm dev
-   ```
-
-4. Load the extension in Chrome:
-   - Open `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked"
-   - Select the `.output/chrome-mv3` directory
-
-### Production Build
+If you are contributing code, this is the recommended way to work.
 
 ```bash
-pnpm build
-pnpm zip
+pnpm install
+pnpm dev
 ```
 
-The packaged extension will be in `.output/`.
+This command opens a pristine instance of Chrome with the extension automatically installed and watched for changes.
 
-## Architecture
+**Note on Persistence:**
+By default, `pnpm dev` creates a temporary Chrome profile. If you want to persist your login session between restarts, create a `web-ext.config.ts` file in the root directory (this file is gitignored) with the following content:
 
-### Project Structure
+```ts
+// web-ext.config.ts
+import { defineWebExtConfig } from "wxt"
 
-```
-portflow-extended/
-├── entrypoints/
-│   ├── content.ts          # Content script (main coordinator)
-│   ├── interceptor.ts      # Fetch interceptor (runs in page context)
-│   └── popup/              # Extension popup UI
-├── src/
-│   ├── constants/          # Configuration and theme
-│   ├── services/           # Business logic
-│   │   ├── dom.service.ts      # DOM manipulation
-│   │   ├── feedback.service.ts # Feedback processing
-│   │   ├── goals.service.ts    # Goal processing
-│   │   └── state.service.ts    # State management
-│   ├── types/              # TypeScript definitions
-│   └── utils/              # Helper functions
-└── assets/                 # Static assets
+export default defineWebExtConfig({
+  chromiumArgs: ["--user-data-dir=./.wxt/chrome-data"],
+})
 ```
 
-### How It Works
+### Other Browsers
 
-1. **Interceptor** (`interceptor.ts`): Runs in the page context, intercepts Portflow's API calls to capture goal and feedback data
-2. **Content Script** (`content.ts`): Receives data from interceptor, manages state, and coordinates DOM injection
-3. **DOM Service**: Injects custom badges into Portflow's goal list UI
-4. **State Service**: Persists data to `browser.storage.local` for popup access
-5. **Popup**: Displays extension status, goal count, and last update time
+This extension is built with WXT, which supports multiple browsers. While Chrome is the primary target, you can run or build for Firefox using the included scripts:
 
-## Permissions
+**Firefox Development:**
 
-- **storage**: Save extension state and cached data
-- **host_permissions**: Access Portflow and Canvas domains
+```bash
+pnpm dev:firefox
+```
 
-## Development
+**Firefox Build:**
 
-### Scripts
+```bash
+pnpm build:firefox
+# OR
+pnpm zip:firefox
+```
 
-- `pnpm dev` - Start development server with hot reload
-- `pnpm build` - Build production bundle
-- `pnpm compile` - Type-check without building
-- `pnpm zip` - Create distributable ZIP file
+### Installation
 
-### Tech Stack
+If you want to use the extension without the dev server, you have three options to obtain the package:
 
-- **Framework**: [WXT](https://wxt.dev/) - Modern web extension framework
-- **UI**: React 19 + Tailwind CSS 4
-- **Language**: TypeScript
-- **Build Tool**: Vite
+1.  **Download a Release**: Go to the Releases page, download the `.zip` file, and unzip it.
+2.  **Build from Source**: Run `pnpm build` to create a production build in `.output/chrome-mv3`.
+3.  **Zip from Source**: Run `pnpm zip` to create a zip file in `.output/`, then unzip it.
+
+#### Loading into Chrome
+
+Once you have the unzipped folder (either from download or build):
+
+1.  Open Chrome and navigate to `chrome://extensions/`.
+2.  Enable **Developer mode** in the top-right corner.
+3.  Click **Load unpacked**.
+4.  Select the folder containing the extension (e.g., `.output/chrome-mv3` or your unzipped folder).
+
+You're all set! Note that you may need to reload the extension from this page if you make updates to the files manually.
+
+## Features
+
+- **Level Checking**
+  Automatically checks your progress against course requirements for skills, HBO-I, and KPM.
+
+- **Detailed Insights**
+  View exact evaluation counts and see exactly what is missing to reach the next level.
+
+- **Seamless Integration**
+  Injects stats directly into the Portflow interface and offers a comprehensive popup overview.
+
+- **Modern Stack**
+  Built with WXT, React, TypeScript, and Tailwind CSS for a robust and maintainable codebase.
+
+## Documentation
+
+The codebase is structured to be intuitive:
+
+- `entrypoints/`: Contains the popup, content scripts, and background logic.
+- `src/components/`: Reusable React components using a centralized design system.
+- `src/utils/`: core logic for level checking and data formatting.
+- `assets/`: Global styles including the Tailwind theme configuration.
 
 ## Contributing
 
-This extension is primarily for personal use but contributions are welcome for the Open-ICT community.
+If you want to add contributions to this repository, please follow the instructions in [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## License
+## Need help?
 
-MIT
+If you're struggling with something, checking lines of code or existing issues is your best bet. If you find a bug, please open an issue following our guidelines.
