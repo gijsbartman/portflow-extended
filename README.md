@@ -70,15 +70,18 @@ You're all set! Note that you may need to reload the extension from this page if
 
 - **Level Checking**
   Automatically checks your progress against course requirements for skills, HBO-I, and KPM.
+  
+  <img width="362" height="342" alt="Screenshot 2026-01-25 at 13 48 41" src="https://github.com/user-attachments/assets/2fc04a29-ed1e-4e72-8fb1-1d556ecbc249" />
 
 - **Detailed Insights**
   View exact evaluation counts and see exactly what is missing to reach the next level.
+  
+  <img width="361" height="370" alt="Screenshot 2026-01-25 at 13 49 41" src="https://github.com/user-attachments/assets/da3bd0fe-9f4c-46fa-85e9-9ce6bf364517" />
 
 - **Seamless Integration**
   Injects stats directly into the Portflow interface and offers a comprehensive popup overview.
 
-- **Modern Stack**
-  Built with WXT, React, TypeScript, and Tailwind CSS for a robust and maintainable codebase.
+  <img width="1677" height="933" alt="Screenshot 2026-01-25 at 12 51 14" src="https://github.com/user-attachments/assets/0e7950ea-6804-4783-b790-de245af750b0" />
 
 ## Documentation
 
